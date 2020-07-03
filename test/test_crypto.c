@@ -76,11 +76,19 @@ check_equals(const char *banner, const void *v1, const void *v2, size_t len)
 	fprintf(stderr, "\n%s failed\n", banner);
 	fprintf(stderr, "v1: ");
 	for (u = 0, b = v1; u < len; u ++) {
+	#ifndef __TRUSTINSOFT_BUGFIX__
 		fprintf(stderr, "%02X", b[u]);
+	#else
+		fprintf(stderr, "%02X", (unsigned int) b[u]);
+	#endif
 	}
 	fprintf(stderr, "\nv2: ");
 	for (u = 0, b = v2; u < len; u ++) {
+	#ifndef __TRUSTINSOFT_BUGFIX__
 		fprintf(stderr, "%02X", b[u]);
+	#else
+		fprintf(stderr, "%02X", (unsigned int) b[u]);
+	#endif
 	}
 	fprintf(stderr, "\n");
 	exit(EXIT_FAILURE);
@@ -172,8 +180,10 @@ test_MD5(void)
 	test_md5_internal("1234567890123456789012345678901234567890123456789"
 		"0123456789012345678901234567890",
 		"57edf4a22be3c955ac49da2e2107b67a");
+#ifndef __TRUSTINSOFT_ANALYZER__
 	KAT_MILLION_A(MD5, md5,
 		"7707d6ae4e027c70eea2a935c2296f21");
+#endif
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -187,8 +197,10 @@ test_SHA1(void)
 	test_sha1_internal("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlm"
 		"nomnopnopq", "84983e441c3bd26ebaae4aa1f95129e5e54670f1");
 
+#ifndef __TRUSTINSOFT_ANALYZER__
 	KAT_MILLION_A(SHA-1, sha1,
 		"34aa973cd4c4daa4f61eeb2bdbad27316534016f");
+#endif
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -204,8 +216,10 @@ test_SHA224(void)
 		"nomnopnopq",
    "75388b16512776cc5dba5da1fd890150b0c6455cb4f58b1952522525");
 
+#ifndef __TRUSTINSOFT_ANALYZER__
 	KAT_MILLION_A(SHA-224, sha224,
 		"20794655980c91d8bbb4c1ea97618a4bf03f42581948b2ee4ee7ad67");
+#endif
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -221,8 +235,10 @@ test_SHA256(void)
 		"nomnopnopq",
    "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1");
 
+#ifndef __TRUSTINSOFT_ANALYZER__
 	KAT_MILLION_A(SHA-256, sha256,
    "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0");
+ #endif
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -241,9 +257,11 @@ test_SHA384(void)
 		"09330c33f71147e83d192fc782cd1b4753111b173b3b05d2"
 		"2fa08086e3b0f712fcc7c71a557e2db966c3e9fa91746039");
 
+#ifndef __TRUSTINSOFT_ANALYZER__
 	KAT_MILLION_A(SHA-384, sha384,
 		"9d0e1809716474cb086e834e310a4a1ced149e9c00f24852"
 		"7972cec5704c2a5b07b8b3dc38ecc4ebae97ddd87f3d8985");
+#endif
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -262,9 +280,11 @@ test_SHA512(void)
    "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018"
    "501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909");
 
+#ifndef __TRUSTINSOFT_ANALYZER__
 	KAT_MILLION_A(SHA-512, sha512,
    "e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973eb"
    "de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b");
+#endif
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -286,6 +306,9 @@ test_MD5_SHA1(void)
 	seed[0] = 0;
 	br_hmac_drbg_init(&rc, &br_sha256_vtable, seed, sizeof seed);
 	for (u = 0; u < sizeof buf; u ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+	  if (u > 70) break;
+	#endif
 		size_t v;
 
 		br_hmac_drbg_generate(&rc, buf, u);
@@ -394,6 +417,9 @@ test_multihash_inner(br_multihash_context *mc)
 		buf[len] = tmp[0];
 	}
 	for (len = 0; len <= 257; len ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (len % 256 != 0) continue;
+	#endif
 		size_t u;
 
 		br_multihash_init(mc);
@@ -459,6 +485,7 @@ test_multihash(void)
 	printf(".");
 	fflush(stdout);
 
+#ifndef __TRUSTINSOFT_ANALYZER__
 	br_multihash_zero(&mc);
 	br_multihash_setimpl(&mc, br_sha1_ID, &br_sha1_vtable);
 	if (test_multihash_inner(&mc) != 258) {
@@ -466,6 +493,7 @@ test_multihash(void)
 	}
 	printf(".");
 	fflush(stdout);
+#endif
 
 	br_multihash_zero(&mc);
 	br_multihash_setimpl(&mc, br_sha224_ID, &br_sha224_vtable);
@@ -475,6 +503,7 @@ test_multihash(void)
 	printf(".");
 	fflush(stdout);
 
+#ifndef __TRUSTINSOFT_ANALYZER__
 	br_multihash_zero(&mc);
 	br_multihash_setimpl(&mc, br_sha256_ID, &br_sha256_vtable);
 	if (test_multihash_inner(&mc) != 258) {
@@ -483,6 +512,7 @@ test_multihash(void)
 	printf(".");
 	fflush(stdout);
 
+#endif
 	br_multihash_zero(&mc);
 	br_multihash_setimpl(&mc, br_sha384_ID, &br_sha384_vtable);
 	if (test_multihash_inner(&mc) != 258) {
@@ -490,6 +520,7 @@ test_multihash(void)
 	}
 	printf(".");
 	fflush(stdout);
+#ifndef __TRUSTINSOFT_ANALYZER__
 
 	br_multihash_zero(&mc);
 	br_multihash_setimpl(&mc, br_sha512_ID, &br_sha512_vtable);
@@ -512,6 +543,7 @@ test_multihash(void)
 	printf(".");
 	fflush(stdout);
 
+#endif
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -666,6 +698,9 @@ test_HMAC(void)
 		"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 		"Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data",
 		"6f630fad67cda0ee1fb1f562db3aa53e");
+#ifdef __TRUSTINSOFT_ANALYZER__
+	goto TIS_HMAC_done;
+#endif
 
 	do_KAT_HMAC_hex_str(&br_sha1_vtable,
 		"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -1024,7 +1059,7 @@ test_HMAC(void)
 	test_HMAC_CT(&br_sha384_vtable, key, sizeof key, data);
 	printf("(SHA-512) ");
 	test_HMAC_CT(&br_sha512_vtable, key, sizeof key, data);
-
+TIS_HMAC_done:
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -1562,6 +1597,10 @@ test_SHAKE(void)
 	printf(" ");
 	fflush(stdout);
 
+#ifdef __TRUSTINSOFT_ANALYZER__
+	goto TIS_SHAKE_done;
+#endif
+
 	test_SHAKE_MonteCarlo(128, 16, 140,
 		"c8b310cb97efa3855434998fa81c7674",
 		"4aa371f0099b04a909f9b1680e8b52a21c6510ea2640137d501ffa114bf84717b1f725d64bae4ae5d87a");
@@ -1578,6 +1617,7 @@ test_SHAKE(void)
 		"48a0321b3653e4e86446d00f6a036efd",
 		"d4c8c26ded38cca426d8d1c8f8aedb5c543541333839deca8713cfd8684480fe923f57c3a5c89cb61427c220c7");
 
+TIS_SHAKE_done:
 	printf(" done.\n");
 	fflush(stdout);
 }
@@ -3557,6 +3597,9 @@ monte_carlo_AES_encrypt(const br_block_cbcenc_class *ve,
 	hextobin(buf, splain);
 	hextobin(cipher, scipher);
 	for (i = 0; i < 100; i ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+	  if (i > 0) break;
+	#endif
 		ve->init(ec, key, key_len);
 		for (j = 0; j < 1000; j ++) {
 			unsigned char iv[16];
@@ -3612,6 +3655,9 @@ monte_carlo_AES_decrypt(const br_block_cbcdec_class *vd,
 	hextobin(buf, scipher);
 	hextobin(plain, splain);
 	for (i = 0; i < 100; i ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (i > 0) break;
+	#endif
 		vd->init(dc, key, key_len);
 		for (j = 0; j < 1000; j ++) {
 			unsigned char iv[16];
@@ -3669,6 +3715,10 @@ test_AES_generic(char *name,
 	}
 
 	for (u = 0; KAT_AES[u]; u += 3) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+	  if (u > 0) break;
+	#endif
+
 		unsigned char key[32];
 		unsigned char plain[16];
 		unsigned char cipher[16];
@@ -3695,9 +3745,16 @@ test_AES_generic(char *name,
 		vd->run(dc, iv, buf, sizeof buf);
 		check_equals("KAT AES decrypt", buf, plain, sizeof plain);
 	}
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		goto TIS_AES_done;
+	#endif
 
 	if (with_CBC) {
 		for (u = 0; KAT_AES_CBC[u]; u += 4) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (u > 0) break;
+		#endif
+
 			unsigned char key[32];
 			unsigned char ivref[16];
 			unsigned char plain[200];
@@ -3750,6 +3807,10 @@ test_AES_generic(char *name,
 		 * encrypted block as new IV, for all sizes.
 		 */
 		for (u = 1; u <= 35; u ++) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (u > 1) break;
+		#endif
+
 			br_hmac_drbg_context rng;
 			unsigned char x;
 			size_t key_len, data_len;
@@ -3816,6 +3877,10 @@ test_AES_generic(char *name,
 			exit(EXIT_FAILURE);
 		}
 		for (u = 0; KAT_AES_CTR[u]; u += 4) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (u > 0) break;
+		#endif
+
 			unsigned char key[32];
 			unsigned char iv[12];
 			unsigned char plain[200];
@@ -3872,6 +3937,9 @@ test_AES_generic(char *name,
 			"139a35422f1d61de3c91787fe0507afd",
 			"b9145a768b7dc489a096b546f43b231f",
 			"fb2649694783b551eacd9d5db6126d47");
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		goto TIS_AES_done;
+	#endif
 		monte_carlo_AES_decrypt(
 			vd,
 			"0c60e7bf20ada9baa9e1ddf0d1540726",
@@ -3900,7 +3968,7 @@ test_AES_generic(char *name,
 			"89649bd0115f30bd878567610223a59d",
 			"e3d3868f578caf34e36445bf14cefc68");
 	}
-
+TIS_AES_done:
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -4087,6 +4155,9 @@ test_AES_CTRCBC_inner(const char *name, const br_block_ctrcbc_class *vt)
 
 	br_hmac_drbg_init(&rng, &br_sha256_vtable, name, strlen(name));
 	for (key_len = 16; key_len <= 32; key_len += 8) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (key_len > 16) break;
+	#endif
 		br_aes_gen_ctrcbc_keys bc;
 		unsigned char key[32];
 		size_t data_len;
@@ -4094,6 +4165,9 @@ test_AES_CTRCBC_inner(const char *name, const br_block_ctrcbc_class *vt)
 		br_hmac_drbg_generate(&rng, key, key_len);
 		vt->init(&bc.vtable, key, key_len);
 		for (data_len = 0; data_len <= 512; data_len += 16) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (data_len > 64) break;
+		#endif
 			unsigned char plain[512];
 			unsigned char data1[sizeof plain];
 			unsigned char data2[sizeof plain];
@@ -4105,6 +4179,9 @@ test_AES_CTRCBC_inner(const char *name, const br_block_ctrcbc_class *vt)
 			br_hmac_drbg_generate(&rng, plain, data_len);
 
 			for (i = 0; i <= 16; i ++) {
+				#ifdef __TRUSTINSOFT_ANALYZER__
+					if (i > 1) break;
+				#endif
 				if (i == 0) {
 					br_hmac_drbg_generate(&rng, ctr, 16);
 				} else {
@@ -4762,6 +4839,9 @@ monte_carlo_DES_encrypt(const br_block_cbcenc_class *ve)
 	hextobin(buf, "b624d6bd41783ab1");
 	hextobin(cipher, "eafd97b190b167fe");
 	for (i = 0; i < 400; i ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (i > 4) break;
+	#endif
 		unsigned char key[24];
 
 		memcpy(key, k1, 8);
@@ -4769,6 +4849,9 @@ monte_carlo_DES_encrypt(const br_block_cbcenc_class *ve)
 		memcpy(key + 16, k3, 8);
 		ve->init(ec, key, sizeof key);
 		for (j = 0; j < 10000; j ++) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (j > 4) break;
+		#endif
 			unsigned char iv[8];
 
 			memset(iv, 0, sizeof iv);
@@ -4804,6 +4887,9 @@ monte_carlo_DES_decrypt(const br_block_cbcdec_class *vd)
 	hextobin(buf, "2783aa729432fe96");
 	hextobin(plain, "44937ca532cdbf98");
 	for (i = 0; i < 400; i ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (i > 4) break;
+	#endif
 		unsigned char key[24];
 
 		memcpy(key, k1, 8);
@@ -4811,6 +4897,9 @@ monte_carlo_DES_decrypt(const br_block_cbcdec_class *vd)
 		memcpy(key + 16, k3, 8);
 		vd->init(dc, key, sizeof key);
 		for (j = 0; j < 10000; j ++) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (j > 4) break;
+		#endif
 			unsigned char iv[8];
 
 			memset(iv, 0, sizeof iv);
@@ -4846,6 +4935,9 @@ test_DES_generic(char *name,
 	}
 
 	for (u = 0; KAT_DES[u]; u += 3) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (u > 9) break;
+	#endif
 		unsigned char key[24];
 		unsigned char plain[8];
 		unsigned char cipher[8];
@@ -4891,6 +4983,9 @@ test_DES_generic(char *name,
 
 	if (with_CBC) {
 		for (u = 0; KAT_DES_CBC[u]; u += 4) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (u > 12) break;
+		#endif
 			unsigned char key[24];
 			unsigned char ivref[8];
 			unsigned char plain[200];
@@ -5009,6 +5104,9 @@ test_ChaCha20_generic(const char *name, br_chacha20_run cr)
 	}
 
 	for (u = 0; KAT_CHACHA20[u].skey; u ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (u > 0) break;
+	#endif
 		unsigned char key[32], nonce[12], plain[400], cipher[400];
 		uint32_t cc;
 		size_t v, len;
@@ -5113,6 +5211,9 @@ test_Poly1305_inner(const char *name, br_poly1305_run ipoly,
 	fflush(stdout);
 
 	for (u = 0; KAT_POLY1305[u].skey; u ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (u > 0) break;
+	#endif
 		unsigned char key[32], nonce[12], plain[400], cipher[400];
 		unsigned char aad[400], tag[16], data[400], tmp[16];
 		size_t len, aad_len;
@@ -5147,6 +5248,9 @@ test_Poly1305_inner(const char *name, br_poly1305_run ipoly,
 	 */
 	br_hmac_drbg_init(&rng, &br_sha256_vtable, "seed for Poly1305", 17);
 	for (u = 0; u < 100; u ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (u > 4) break;
+	#endif
 		unsigned char plain[100], aad[100], tmp[100];
 		unsigned char key[32], iv[12], tag1[16], tag2[16];
 
@@ -5742,6 +5846,7 @@ test_RSA_core(const char *name, br_rsa_public fpub, br_rsa_private fpriv)
 		fprintf(stderr, "RSA public operation failed (1)\n");
 		exit(EXIT_FAILURE);
 	}
+#ifndef __TRUSTINSOFT_ANALYZER__
 	check_equals("KAT RSA pub", t2, t3, len);
 	if (!fpriv(t3, &RSA_SK)) {
 		fprintf(stderr, "RSA private operation failed (1)\n");
@@ -5803,19 +5908,28 @@ test_RSA_core(const char *name, br_rsa_public fpub, br_rsa_private fpriv)
 	/*
 	 * RSA-2048 test vector.
 	 */
+#endif
 	len = hextobin(t1, "B188ED4EF173A30AED3889926E3CF1CE03FE3BAA7AB122B119A8CD529062F235A7B321008FB898894A624B3E6C8C5374950E78FAC86651345FE2ABA0791968284F23B0D794F8DCDDA924518854822CB7FF2AA9F205AACD909BB5EA541534CC00DBC2EF7727B9FE1BAFE6241B931E8BD01E13632E5AF9E94F4A335772B61F24D6F6AA642AEABB173E36F546CB02B19A1E5D4E27E3EB67F2E986E9F084D4BD266543800B1DC96088A05DFA9AFA595398E9A766D41DD8DA4F74F36C9D74867F0BF7BFA8622EE43C79DA0CEAC14B5D39DE074BDB89D84145BC19D8B2D0EA74DBF2DC29E907BF7C7506A2603CD8BC25EFE955D0125EDB2685EF158B020C9FC539242A");
+#ifndef __TRUSTINSOFT_ANALYZER__
 	hextobin(t2, "0001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF003031300D060960864801650304020105000420A5A0A792A09438811584A68E240C6C89F1FB1C53C0C86E270B942635F4F6B24A");
+#endif
 	memcpy(t3, t1, len);
+#ifndef __TRUSTINSOFT_ANALYZER__
 	if (!fpub(t3, len, &RSA2048_PK)) {
 		fprintf(stderr, "RSA public operation failed (2048)\n");
 		exit(EXIT_FAILURE);
 	}
 	check_equals("KAT RSA pub", t2, t3, len);
+#endif
 	if (!fpriv(t3, &RSA2048_SK)) {
 		fprintf(stderr, "RSA private operation failed (2048)\n");
 		exit(EXIT_FAILURE);
 	}
+#ifdef __TRUSTINSOFT_ANALYZER__
+	goto TIS_RSA_core_done;
+#endif
 	check_equals("KAT RSA priv (2048)", t1, t3, len);
+
 
 	/*
 	 * RSA-4096 test vector.
@@ -5834,6 +5948,7 @@ test_RSA_core(const char *name, br_rsa_public fpub, br_rsa_private fpriv)
 	}
 	check_equals("KAT RSA priv (4096)", t1, t3, len);
 
+TIS_RSA_core_done:
 	printf("done.\n");
 	fflush(stdout);
 }
@@ -5891,6 +6006,9 @@ test_RSA_sign(const char *name, br_rsa_private fpriv,
 	 */
 	hextobin(t2, "0001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF003021300906052B0E03021A05000414A94A8FE5CCB19BA61C4C0873D391E987982FBBD3");
 	for (u = 0; u < (sizeof t2) - 20; u ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (u > 0) break;
+	#endif
 		memcpy(t1, t2, sizeof t2);
 		t1[u] ^= 0x01;
 		if (!fpriv(t1, &RSA_SK)) {
@@ -6388,6 +6506,9 @@ test_RSA_PSS(const char *name,
 
 	u = 0;
 	while (KAT_RSA_PSS[u] != NULL) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (u > 0) break;
+	#endif
 		unsigned char n[512];
 		unsigned char e[8];
 		unsigned char d[512];
@@ -6424,6 +6545,9 @@ test_RSA_PSS(const char *name,
 		sk.iqlen = hextobin(iq, KAT_RSA_PSS[u ++]);
 
 		for (v = 0; v < 6; v ++) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (v > 0) break;
+		#endif
 			unsigned char plain[512], salt[128], sig[512];
 			size_t plain_len, salt_len, sig_len;
 			rng_fake_ctx rng;
@@ -6654,6 +6778,9 @@ test_RSA_OAEP(const char *name,
 
 	u = 0;
 	while (KAT_RSA_OAEP[u] != NULL) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (u > 0) break;
+	#endif
 		unsigned char n[512];
 		unsigned char e[8];
 		unsigned char p[256];
@@ -6684,6 +6811,9 @@ test_RSA_OAEP(const char *name,
 		sk.iqlen = hextobin(iq, KAT_RSA_OAEP[u ++]);
 
 		for (v = 0; v < 6; v ++) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (v > 0) break;
+		#endif
 			unsigned char plain[512], seed[128], cipher[512];
 			size_t plain_len, seed_len, cipher_len;
 			rng_fake_ctx rng;
@@ -6773,6 +6903,9 @@ test_RSA_keygen(const char *name, br_rsa_keygen kg, br_rsa_compute_modulus cm,
 	br_hmac_drbg_init(&rng, &br_sha256_vtable, "seed for RSA keygen", 19);
 
 	for (i = 0; i <= 42; i ++) {
+	#ifdef __TRUSTINSOFT_ANALYZER__
+		if (i > 0) break;
+	#endif
 		unsigned size;
 		uint32_t pubexp, z;
 		br_rsa_private_key sk;
@@ -6903,6 +7036,9 @@ test_RSA_keygen(const char *name, br_rsa_keygen kg, br_rsa_compute_modulus cm,
 		 * We test the RSA operation over a some random messages.
 		 */
 		for (j = 0; j < 20; j ++) {
+		#ifdef __TRUSTINSOFT_ANALYZER__
+			if (j > 0) break;
+		#endif
 			rng.vtable->generate(&rng.vtable, hv, sizeof hv);
 			memset(sig, 0, sizeof sig);
 			sig[pk.nlen] = 0x00;
@@ -6944,6 +7080,9 @@ static void
 test_RSA_i15(void)
 {
 	test_RSA_core("RSA i15 core", &br_rsa_i15_public, &br_rsa_i15_private);
+#ifdef __TRUSTINSOFT_ANALYZER__
+	return;
+#endif
 	test_RSA_sign("RSA i15 sign", &br_rsa_i15_private,
 		&br_rsa_i15_pkcs1_sign, &br_rsa_i15_pkcs1_vrfy);
 	test_RSA_OAEP("RSA i15 OAEP",
@@ -6960,6 +7099,9 @@ static void
 test_RSA_i31(void)
 {
 	test_RSA_core("RSA i31 core", &br_rsa_i31_public, &br_rsa_i31_private);
+#ifdef __TRUSTINSOFT_ANALYZER__
+	return;
+#endif
 	test_RSA_sign("RSA i31 sign", &br_rsa_i31_private,
 		&br_rsa_i31_pkcs1_sign, &br_rsa_i31_pkcs1_vrfy);
 	test_RSA_OAEP("RSA i31 OAEP",
@@ -6976,6 +7118,9 @@ static void
 test_RSA_i32(void)
 {
 	test_RSA_core("RSA i32 core", &br_rsa_i32_public, &br_rsa_i32_private);
+#ifdef __TRUSTINSOFT_ANALYZER__
+	return;
+#endif
 	test_RSA_sign("RSA i32 sign", &br_rsa_i32_private,
 		&br_rsa_i32_pkcs1_sign, &br_rsa_i32_pkcs1_vrfy);
 	test_RSA_OAEP("RSA i32 OAEP",
