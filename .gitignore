@@ -4,3 +4,12 @@
 /testcrypto
 /testspeed
 /testx509
+
+# TrustInSoft CI
+*.c_config.json
+*.c_functions.csv
+*.c_time.txt
+*.c_variables.csv
+tis.config.in_generated
+tis.config.in_generated.json
+tis_symbols.tbl

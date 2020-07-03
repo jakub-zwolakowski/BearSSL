@@ -38,8 +38,8 @@
  * efficient (i.e. the architecture has 64-bit registers and can
  * do 64-bit operations as fast as 32-bit operations).
  *
-#define BR_64   1
  */
+#define BR_64   1
 
 /*
  * When BR_LOMUL is enabled, then multiplications of 32-bit values whose
@@ -132,8 +132,8 @@
  * to automatically obtain quality randomness for seeding its internal
  * PRNG.
  *
-#define BR_USE_URANDOM   1
  */
+#define BR_USE_URANDOM   1
 
 /*
  * When BR_USE_WIN32_RAND is enabled, the SSL engine will use the Win32
