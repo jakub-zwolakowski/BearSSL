@@ -179,7 +179,7 @@ sha2big_out(const br_sha384_context *cc, void *dst, int num)
 	memcpy(val, cc->val, sizeof val);
 	buf[ptr ++] = 0x80;
 	if (ptr > 112) {
-		memset(buf + ptr, 0, 128 - ptr);
+		if (ptr < 128) memset(buf + ptr, 0, 128 - ptr);
 		sha2big_round(buf, val);
 		memset(buf, 0, 112);
 	} else {
