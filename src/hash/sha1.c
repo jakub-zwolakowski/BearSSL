@@ -146,7 +146,7 @@ br_sha1_out(const br_sha1_context *cc, void *dst)
 	memcpy(val, cc->val, sizeof val);
 	buf[ptr ++] = 0x80;
 	if (ptr > 56) {
-		memset(buf + ptr, 0, 64 - ptr);
+		if (ptr < 64) memset(buf + ptr, 0, 64 - ptr);
 		br_sha1_round(buf, val);
 		memset(buf, 0, 56);
 	} else {
