@@ -48,6 +48,8 @@ br_aes_ct64_cbcdec_run(const br_aes_ct64_cbcdec_keys *ctx,
 	while (len > 0) {
 		uint64_t q[8];
 		uint32_t w1[16], w2[16];
+		memset(w1, 0, sizeof w1);
+		memset(w2, 0, sizeof w2);
 		int i;
 
 		if (len >= 64) {
