@@ -81,7 +81,7 @@ br_md5sha1_out(const br_md5sha1_context *cc, void *dst)
 	memcpy(val_sha1, cc->val_sha1, sizeof val_sha1);
 	buf[ptr ++] = 0x80;
 	if (ptr > 56) {
-		memset(buf + ptr, 0, 64 - ptr);
+		if (ptr < 64) memset(buf + ptr, 0, 64 - ptr);
 		br_md5_round(buf, val_md5);
 		br_sha1_round(buf, val_sha1);
 		memset(buf, 0, 56);
