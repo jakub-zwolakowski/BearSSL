@@ -96,7 +96,7 @@ br_aes_ct64_ctrcbc_ctr(const br_aes_ct64_ctrcbc_keys *ctx,
 			carry &= -(~(iv1 | -iv1) >> 31);
 			iv0 += carry;
 		}
-		memset(w + i, 0, (16 - i) * sizeof(uint32_t));
+		if (i < 16) memset(w + i, 0, (16 - i) * sizeof(uint32_t));
 
 		for (i = 0; i < 4; i ++) {
 			br_aes_ct64_interleave_in(
