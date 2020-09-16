@@ -38,6 +38,7 @@ br_rsa_i31_public(unsigned char *x, size_t xlen,
 	const unsigned char *n;
 	size_t nlen;
 	uint32_t tmp[1 + TLEN];
+	memset(tmp, 0, sizeof tmp);
 	uint32_t *m, *a, *t;
 	size_t fwlen;
 	long z;
