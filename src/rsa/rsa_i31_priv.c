@@ -37,6 +37,7 @@ br_rsa_i31_private(unsigned char *x, const br_rsa_private_key *sk)
 	uint32_t p0i, q0i;
 	size_t xlen, u;
 	uint32_t tmp[1 + TLEN];
+	memset(tmp, 0, sizeof tmp);
 	long z;
 	uint32_t *mp, *mq, *s1, *s2, *t1, *t2, *t3;
 	uint32_t r;
